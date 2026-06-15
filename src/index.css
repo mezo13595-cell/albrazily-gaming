@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-cyber-black text-white antialiased;
+  }
+}
+
+@layer utilities {
+  .text-cyber-blue {
+    color: #0088cc;
+  }
+
+  .bg-cyber-blue\/10 {
+    background-color: rgba(0, 136, 204, 0.1);
+  }
+
+  .border-cyber-blue\/30 {
+    border-color: rgba(0, 136, 204, 0.3);
+  }
+
+  .border-cyber-blue\/50 {
+    border-color: rgba(0, 136, 204, 0.5);
+  }
+}
