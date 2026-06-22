@@ -32,6 +32,7 @@ const TELEGRAM_BOT_TOKEN = '8996243290:AAEuX32YcDpIuApc7kB_XdIzOdflX1k1y3o';
 const TELEGRAM_CHAT_ID = '1096675312';
 const ADMIN_ACTIVATION_CODE = 'ALBRAZILY-ACTIVE'; // Fixed activation code granted by admin
 const TELEGRAM_GROUP_URL = 'https://t.me/albrazily0';
+const TELEGRAM_CONTACT_URL = 'https://t.me/abed0992';
 
 async function sendSubmissionToTelegram(
   playerId: string,
@@ -155,6 +156,7 @@ interface Translations {
     enterAdminCode: string;
     adminCodePlaceholder: string;
     confirmActivation: string;
+    contactAdminForCode: string;
     submitErrorRequired: string;
     submitErrorTelegram: string;
     submitErrorConfig: string;
@@ -164,6 +166,8 @@ interface Translations {
     serverOverload: string;
     serverOverloadDesc: string;
     contactSupport: string;
+    nextRound: string;
+    activateAiMode: string;
   };
 }
 
@@ -254,6 +258,7 @@ const translations: Record<Language, Translations> = {
       enterAdminCode: 'Activation Code',
       adminCodePlaceholder: 'Enter the code provided by admin',
       confirmActivation: 'Confirm Activation',
+      contactAdminForCode: 'Contact Admin for Activation Code',
       submitErrorRequired: 'Please fill in Player ID and upload both screenshots.',
       submitErrorTelegram: 'Failed to send data. Please try again or contact support.',
       submitErrorConfig: 'Telegram bot is not configured yet. Please contact support.',
@@ -261,8 +266,10 @@ const translations: Record<Language, Translations> = {
       wrongKey: 'Invalid activation code. Please enter the code provided by admin.',
       onlineUsers: 'Online Users',
       serverOverload: 'ERROR: Server Overloaded!',
-      serverOverloadDesc: 'Due to high traffic from 14,000+ active users, script grid generation is temporarily queued. Please try again later or contact support immediately to speed up activation.',
-      contactSupport: 'Contact Support Agent'
+      serverOverloadDesc: 'Due to high traffic from {{count}}+ active users, script grid generation is temporarily queued. Please try again later or contact support immediately to speed up activation.',
+      contactSupport: 'Contact Support Agent',
+      nextRound: 'Next Round',
+      activateAiMode: 'Activate AI Mode'
     }
   },
   ar: {
@@ -351,6 +358,7 @@ const translations: Record<Language, Translations> = {
       enterAdminCode: 'كود التفعيل',
       adminCodePlaceholder: 'أدخل كود التفعيل من الإدارة',
       confirmActivation: 'تأكيد التفعيل',
+      contactAdminForCode: 'تواصل مع الإدارة للحصول على كود التفعيل',
       submitErrorRequired: 'يرجى إدخال معرف اللاعب ورفع الصورتين.',
       submitErrorTelegram: 'فشل إرسال البيانات. يرجى المحاولة مرة أخرى أو التواصل مع الدعم.',
       submitErrorConfig: 'بوت التلجرام غير مُعد بعد. يرجى التواصل مع الدعم.',
@@ -358,8 +366,10 @@ const translations: Record<Language, Translations> = {
       wrongKey: 'كود تفعيل غير صحيح. يرجى إدخال الكود الممنوح من الإدارة.',
       onlineUsers: 'المستخدمون المتصلون',
       serverOverload: 'خطأ: السيرفر ممتلئ!',
-      serverOverloadDesc: 'بسبب الضغط العالي من أكثر من 14,000 مستخدم نشط، تم إيقاف توليد شبكة التفاح مؤقتاً في طابور الانتظار. يرجى المحاولة لاحقاً أو مراسلة الدعم فوراً لتسريع التفعيل.',
-      contactSupport: 'تواصل مع وكيل الدعم'
+      serverOverloadDesc: 'بسبب الضغط العالي من أكثر من {{count}} مستخدم نشط، تم إيقاف توليد شبكة التفاح مؤقتاً في طابور الانتظار. يرجى المحاولة لاحقاً أو مراسلة الدعم فوراً لتسريع التفعيل.',
+      contactSupport: 'تواصل مع وكيل الدعم',
+      nextRound: 'الدور القادم',
+      activateAiMode: 'تفعيل وضع الذكاء الاصطناعي'
     }
   }
 };
@@ -598,7 +608,7 @@ function Navbar({
             </button>
             <LanguageToggle />
             <a
-              href={TELEGRAM_GROUP_URL}
+              href={TELEGRAM_CONTACT_URL}
               target="_blank"
               rel="noopener noreferrer"
               className={`flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyber-yellow to-cyber-gold text-cyber-black font-semibold text-sm hover:shadow-lg hover:shadow-cyber-yellow/30 transition-all duration-300 ${isRTL ? 'flex-row-reverse' : ''}`}
@@ -648,7 +658,7 @@ function Navbar({
               {t.nav.community}
             </button>
             <a
-              href={TELEGRAM_GROUP_URL}
+              href={TELEGRAM_CONTACT_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-cyber-yellow to-cyber-gold text-cyber-black font-semibold"
@@ -947,7 +957,7 @@ function AgentPartnershipSection() {
 
           {/* CTA Button */}
           <a
-            href={TELEGRAM_GROUP_URL}
+            href={TELEGRAM_CONTACT_URL}
             target="_blank"
             rel="noopener noreferrer"
             className={`inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-cyber-yellow to-cyber-gold text-cyber-black font-bold text-lg hover:shadow-xl hover:shadow-cyber-yellow/40 transition-all duration-300 hover:-translate-y-1 ${isRTL ? 'flex-row-reverse' : ''}`}
@@ -1019,7 +1029,7 @@ function CommunitySection() {
             title={t.community.agent.title}
             description={t.community.agent.description}
             buttonText={t.community.agent.buttonText}
-            buttonLink={TELEGRAM_GROUP_URL}
+            buttonLink={TELEGRAM_CONTACT_URL}
             accentColor="yellow"
           />
         </div>
@@ -1116,7 +1126,7 @@ function Footer() {
           {/* Social Links */}
           <div className={`flex justify-center gap-4 mb-8 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <a
-              href={TELEGRAM_GROUP_URL}
+              href={TELEGRAM_CONTACT_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="w-12 h-12 rounded-xl bg-cyber-dark border border-gray-800 flex items-center justify-center text-gray-400 hover:text-cyber-yellow hover:border-cyber-yellow/50 transition-all duration-300"
@@ -1274,6 +1284,26 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const getWoodBoxStyle = (variant: 'normal' | 'rotten' | 'win'): React.CSSProperties => {
+    const palettes = {
+      normal: ['#d4a574', '#b8844a', '#8f5e2b', '#6b4423'],
+      rotten: ['#5c3d2e', '#4a2f22', '#3d2518', '#2a1810'],
+      win: ['#e8c872', '#c9953a', '#a87328', '#7a5218'],
+    };
+    const [c1, c2, c3, c4] = palettes[variant];
+    return {
+      background: `
+        linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 35%),
+        repeating-linear-gradient(92deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 5px),
+        linear-gradient(145deg, ${c1} 0%, ${c2} 32%, ${c3} 68%, ${c4} 100%)
+      `,
+      boxShadow:
+        variant === 'win'
+          ? 'inset 0 2px 5px rgba(255,255,255,0.25), inset 0 -4px 8px rgba(0,0,0,0.35), 0 0 16px rgba(234,179,8,0.55)'
+          : 'inset 0 2px 4px rgba(255,255,255,0.14), inset 0 -3px 7px rgba(0,0,0,0.38), 0 2px 5px rgba(0,0,0,0.35)',
+    };
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Backdrop */}
@@ -1398,6 +1428,16 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
                 {keyError && <p className="text-red-500 text-sm mt-2">{t.script.wrongKey}</p>}
               </div>
 
+              <a
+                href={TELEGRAM_CONTACT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold text-base hover:from-blue-500 hover:to-blue-400 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 flex items-center justify-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
+              >
+                <Send size={18} />
+                {t.script.contactAdminForCode}
+              </a>
+
               <button
                 onClick={handleActivate}
                 className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-cyber-yellow to-cyber-gold text-cyber-black font-bold text-lg hover:shadow-xl hover:shadow-cyber-yellow/40 transition-all duration-300 flex items-center justify-center gap-2"
@@ -1434,45 +1474,87 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
                 <span className="font-['Orbitron'] text-white font-bold">{userCount.toLocaleString()}</span>
               </div>
 
-              {/* Apple Grid */}
+              {/* Wood Crate Grid + Game Actions */}
               <div className="relative">
-                <div className="grid grid-cols-5 gap-2 p-4 bg-gradient-to-br from-green-900/20 to-cyber-charcoal rounded-xl border border-green-500/20">
-                  {apples.map((apple) => {
-                    const isWinning = masterState.winningApples.includes(apple.id);
-                    const isHighlight = masterState.liveMode && masterState.outcome === 'win' && isWinning;
-                    return (
-                      <div
-                        key={apple.id}
-                        className={`aspect-square rounded-lg flex flex-col items-center justify-center transition-all duration-500 ${
-                          isHighlight
-                            ? 'bg-cyber-yellow/30 border-2 border-cyber-yellow shadow-lg shadow-cyber-yellow/50 scale-105'
-                            : apple.rotten
-                              ? 'bg-red-900/30 border border-red-500/30'
-                              : 'bg-green-900/30 border border-green-500/30 hover:border-green-400/50'
-                        }`}
-                      >
-                        <Apple className={`${isHighlight ? 'text-cyber-yellow' : apple.rotten ? 'text-red-500/50' : 'text-green-400'}`} size={24} />
-                        {apple.multiplier > 0 && (
-                          <span className={`text-xs font-bold mt-1 ${isHighlight ? 'text-cyber-yellow' : apple.rotten ? 'text-red-500/50' : 'text-green-300'}`}>
-                            x{apple.multiplier}
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
+                <div className="space-y-4">
+                  <div
+                    className="grid grid-cols-5 gap-2 p-4 rounded-xl border-2 border-amber-950/60"
+                    style={{
+                      background: `
+                        linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 30%),
+                        repeating-linear-gradient(0deg, transparent, transparent 8px, rgba(0,0,0,0.08) 8px, rgba(0,0,0,0.08) 9px),
+                        linear-gradient(160deg, #3d2817 0%, #2a1a0f 45%, #1f140c 100%)
+                      `,
+                      boxShadow: 'inset 0 0 24px rgba(0,0,0,0.45), 0 4px 12px rgba(0,0,0,0.35)',
+                    }}
+                  >
+                    {apples.map((apple) => {
+                      const isWinning = masterState.winningApples.includes(apple.id);
+                      const isHighlight = masterState.liveMode && masterState.outcome === 'win' && isWinning;
+                      const boxVariant = isHighlight ? 'win' : apple.rotten ? 'rotten' : 'normal';
+                      return (
+                        <div
+                          key={apple.id}
+                          style={getWoodBoxStyle(boxVariant)}
+                          className={`aspect-square rounded-md flex flex-col items-center justify-center transition-all duration-500 border-2 ${
+                            isHighlight
+                              ? 'border-amber-300 scale-105 shadow-lg shadow-amber-500/40'
+                              : apple.rotten
+                                ? 'border-red-950/70 opacity-75'
+                                : 'border-amber-950/80 hover:brightness-110'
+                          }`}
+                        >
+                          {apple.multiplier > 0 ? (
+                            <span
+                              className={`font-['Orbitron'] text-sm sm:text-base font-bold drop-shadow-md ${
+                                isHighlight
+                                  ? 'text-amber-100'
+                                  : apple.rotten
+                                    ? 'text-red-300/60 line-through'
+                                    : 'text-amber-50'
+                              }`}
+                            >
+                              x{apple.multiplier}
+                            </span>
+                          ) : (
+                            <span className="text-amber-950/40 text-lg font-bold">×</span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className={`flex flex-col sm:flex-row gap-3 ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
+                    <button
+                      type="button"
+                      className={`flex-1 py-3.5 px-5 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-amber-700 via-amber-600 to-yellow-700 text-amber-50 border border-amber-900/60 shadow-lg shadow-amber-950/30 hover:brightness-110 ${isRTL ? 'flex-row-reverse' : ''}`}
+                    >
+                      <ChevronRight size={18} className={isRTL ? 'rotate-180' : ''} />
+                      {t.script.nextRound}
+                    </button>
+                    <button
+                      type="button"
+                      className={`flex-1 py-3.5 px-5 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-700 via-purple-600 to-indigo-700 text-white border border-purple-900/50 shadow-lg shadow-purple-950/30 hover:brightness-110 ${isRTL ? 'flex-row-reverse' : ''}`}
+                    >
+                      <Zap size={18} />
+                      {t.script.activateAiMode}
+                    </button>
+                  </div>
                 </div>
 
-                {/* Error Overlay - Only show for regular users (not live mode) */}
+                {/* Error Overlay - blocks grid and action buttons for regular users */}
                 {!masterState.liveMode && (
-                  <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20">
                     <div className="w-full max-w-md p-6 bg-red-950/95 backdrop-blur-sm border border-red-500/50 rounded-xl shadow-2xl text-center">
                       <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-red-500/20 flex items-center justify-center">
                         <AlertTriangle className="text-red-500" size={28} />
                       </div>
                       <h3 className="font-['Orbitron'] text-lg font-bold text-red-500 mb-3">{t.script.serverOverload}</h3>
-                      <p className="text-gray-300 text-sm mb-6 leading-relaxed">{t.script.serverOverloadDesc}</p>
+                      <p className="text-gray-300 text-sm mb-6 leading-relaxed">
+                        {t.script.serverOverloadDesc.replace('{{count}}', userCount.toLocaleString())}
+                      </p>
                       <a
-                        href={TELEGRAM_GROUP_URL}
+                        href={TELEGRAM_CONTACT_URL}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyber-yellow to-cyber-gold text-cyber-black font-bold transition-all duration-300 hover:shadow-lg hover:shadow-cyber-yellow/40"
@@ -1676,7 +1758,7 @@ function FloatingTelegramButton() {
 
   return (
     <a
-      href={TELEGRAM_GROUP_URL}
+      href={TELEGRAM_CONTACT_URL}
       target="_blank"
       rel="noopener noreferrer"
       className={`fixed bottom-6 z-50 group ${isRTL ? 'left-6' : 'right-6'}`}
