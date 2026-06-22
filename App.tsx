@@ -1209,7 +1209,7 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
     }
   }, [stage, sessionTimer]);
 
-  // User counter fluctuation (2000-2500)
+  // User counter fluctuation
   useEffect(() => {
     if (stage === 'script') {
       const countInterval = setInterval(() => {
@@ -1272,11 +1272,29 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
     setSubmitError('');
   };
 
-  const apples = Array.from({ length: 20 }, (_, i) => ({
-    id: i,
-    multiplier: [1.1, 1.2, 1.3, 1.5, 1.7, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 12.0, 15.0, 20.0, 25.0, 34.0, 0, 0][i] || 0,
-    rotten: i >= 18
-  }));
+  // 10 levels of multipliers matching the real game (from bottom to top)
+  const sidebarMultipliers = [
+    'x349.68', // Level 10 (Top)
+    'x69.93',  // Level 9
+    'x27.97',  // Level 8
+    'x11.18',  // Level 7
+    'x5.59',   // Level 6
+    'x4.02',   // Level 5
+    'x2.41',   // Level 4
+    'x1.93',   // Level 3
+    'x1.54',   // Level 2
+    'x1.23'    // Level 1 (Bottom)
+  ];
+
+  // Grid blocks: 10 rows * 5 columns = 50 cells total
+  const gridCells = Array.from({ length: 50 }, (_, i) => {
+    const rowIndex = Math.floor(i / 5);
+    const levelNumber = 10 - rowIndex;
+    return {
+      id: i,
+      level: levelNumber
+    };
+  });
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -1284,10 +1302,9 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const getWoodBoxStyle = (variant: 'normal' | 'rotten' | 'win'): React.CSSProperties => {
+  const getWoodBoxStyle = (variant: 'normal' | 'win'): React.CSSProperties => {
     const palettes = {
       normal: ['#d4a574', '#b8844a', '#8f5e2b', '#6b4423'],
-      rotten: ['#5c3d2e', '#4a2f22', '#3d2518', '#2a1810'],
       win: ['#e8c872', '#c9953a', '#a87328', '#7a5218'],
     };
     const [c1, c2, c3, c4] = palettes[variant];
@@ -1310,7 +1327,7 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
       <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-cyber-dark to-cyber-charcoal border border-cyber-yellow/30 rounded-2xl shadow-2xl">
+      <div className="relative w-full max-w-2xl max-h-[95vh] overflow-y-auto bg-gradient-to-br from-cyber-dark to-cyber-charcoal border border-cyber-yellow/30 rounded-2xl shadow-2xl">
         {/* Header */}
         <div className={`sticky top-0 bg-cyber-dark/95 backdrop-blur-sm border-b border-cyber-yellow/20 px-6 py-4 flex items-center justify-between z-10 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
@@ -1328,7 +1345,6 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
         <div className="p-6">
           {stage === 'verification' && (
             <div className="space-y-6">
-              {/* Lock Header */}
               <div className="text-center mb-6">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-cyber-yellow/10 border border-cyber-yellow/30 flex items-center justify-center">
                   <Lock className="text-cyber-yellow" size={28} />
@@ -1336,9 +1352,7 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
                 <h3 className="font-['Orbitron'] text-xl font-bold text-white mb-1">{t.script.premiumTitle}</h3>
               </div>
 
-              {/* Fields */}
               <div className="space-y-4">
-                {/* Player ID */}
                 <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
                   <label className="block text-sm text-gray-400 mb-2">{t.script.playerId}</label>
                   <input
@@ -1350,7 +1364,6 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
                   />
                 </div>
 
-                {/* File Uploads */}
                 <div className={`grid grid-cols-2 gap-4 ${isRTL ? 'direction-rtl' : ''}`}>
                   <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
                     <label className="block text-sm text-gray-400 mb-2">{t.script.regScreenshot}</label>
@@ -1375,7 +1388,6 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
                   </div>
                 </div>
 
-                {/* Notice */}
                 <div className={`p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 ${isRTL ? 'text-right' : 'text-left'}`}>
                   <p className="text-amber-400 text-sm leading-relaxed">
                     <span className="font-bold">{language === 'en' ? '⚠️ ' + t.script.depositNotice : t.script.depositNotice + ' ⚠️'}</span>
@@ -1386,7 +1398,6 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
                   <p className="text-red-500 text-sm text-center">{submitError}</p>
                 )}
 
-                {/* Submit Button */}
                 <button
                   onClick={handleSubmit}
                   className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-cyber-yellow to-cyber-gold text-cyber-black font-bold text-lg hover:shadow-xl hover:shadow-cyber-yellow/40 transition-all duration-300 flex items-center justify-center gap-2"
@@ -1458,7 +1469,7 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
                 </div>
               </div>
 
-              {/* Balance Display (Master Control) */}
+              {/* Balance Display */}
               {masterState.liveMode && parseFloat(masterState.balance) > 0 && (
                 <div className={`flex items-center justify-center gap-2 px-4 py-3 bg-cyber-yellow/10 border border-cyber-yellow/30 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <DollarSign className="text-cyber-yellow" size={20} />
@@ -1474,11 +1485,11 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
                 <span className="font-['Orbitron'] text-white font-bold">{userCount.toLocaleString()}</span>
               </div>
 
-              {/* Wood Crate Grid + Game Actions */}
+              {/* Game Viewport Container */}
               <div className="relative">
                 <div className="space-y-4">
-                  <div
-                    className="grid grid-cols-5 gap-2 p-4 rounded-xl border-2 border-amber-950/60"
+                  {/* The Main Arena Container: Sidebar + Grid */}
+                  <div className={`flex gap-2 p-3 rounded-xl border-2 border-amber-950/60 ${isRTL ? 'flex-row-reverse' : ''}`}
                     style={{
                       background: `
                         linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 30%),
@@ -1488,42 +1499,51 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
                       boxShadow: 'inset 0 0 24px rgba(0,0,0,0.45), 0 4px 12px rgba(0,0,0,0.35)',
                     }}
                   >
-                    {apples.map((apple) => {
-                      const isWinning = masterState.winningApples.includes(apple.id);
-                      const isHighlight = masterState.liveMode && masterState.outcome === 'win' && isWinning;
-                      const boxVariant = isHighlight ? 'win' : apple.rotten ? 'rotten' : 'normal';
-                      return (
+                    {/* 1. Stone Sidebar (Left) */}
+                    <div className="flex flex-col gap-1.5 w-16 sm:w-20 justify-between select-none">
+                      {sidebarMultipliers.map((mult, idx) => (
                         <div
-                          key={apple.id}
-                          style={getWoodBoxStyle(boxVariant)}
-                          className={`aspect-square rounded-md flex flex-col items-center justify-center transition-all duration-500 border-2 ${
-                            isHighlight
-                              ? 'border-amber-300 scale-105 shadow-lg shadow-amber-500/40'
-                              : apple.rotten
-                                ? 'border-red-950/70 opacity-75'
-                                : 'border-amber-950/80 hover:brightness-110'
-                          }`}
+                          key={idx}
+                          className="flex items-center justify-center flex-1 rounded bg-gradient-to-b from-gray-600 via-gray-700 to-gray-800 border border-gray-600 shadow-[inset_0_1px_2px_rgba(255,255,255,0.2)]"
                         >
-                          {apple.multiplier > 0 ? (
-                            <span
-                              className={`font-['Orbitron'] text-sm sm:text-base font-bold drop-shadow-md ${
-                                isHighlight
-                                  ? 'text-amber-100'
-                                  : apple.rotten
-                                    ? 'text-red-300/60 line-through'
-                                    : 'text-amber-50'
-                              }`}
-                            >
-                              x{apple.multiplier}
-                            </span>
-                          ) : (
-                            <span className="text-amber-950/40 text-lg font-bold">×</span>
-                          )}
+                          <span className="font-['Orbitron'] text-[10px] sm:text-xs font-bold text-gray-200 drop-shadow">
+                            {mult}
+                          </span>
                         </div>
-                      );
-                    })}
+                      ))}
+                    </div>
+
+                    {/* 2. Apple Grid Matrix (Right) - 10 Rows x 5 Cols */}
+                    <div className="flex-1 grid grid-cols-5 gap-1.5">
+                      {gridCells.map((cell) => {
+                        const isWinning = masterState.winningApples.includes(cell.id);
+                        const isHighlight = masterState.liveMode && masterState.outcome === 'win' && isWinning;
+                        const boxVariant = isHighlight ? 'win' : 'normal';
+
+                        return (
+                          <div
+                            key={cell.id}
+                            style={getWoodBoxStyle(boxVariant)}
+                            className={`aspect-square rounded-md flex items-center justify-center transition-all duration-500 border border-amber-950/80 ${
+                              isHighlight
+                                ? 'border-amber-300 scale-105 shadow-md shadow-amber-500/50'
+                                : 'hover:brightness-110'
+                            }`}
+                          >
+                            <Apple 
+                              className={`w-1/2 h-1/2 drop-shadow-md transition-transform duration-300 ${
+                                isHighlight 
+                                  ? 'text-amber-200 scale-110 fill-amber-300' 
+                                  : 'text-red-600 fill-red-700'
+                              }`} 
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
 
+                  {/* Operational Controls */}
                   <div className={`flex flex-col sm:flex-row gap-3 ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
                     <button
                       type="button"
@@ -1542,7 +1562,7 @@ function AppleOfFortuneModal({ onClose }: { onClose: () => void }) {
                   </div>
                 </div>
 
-                {/* Error Overlay - blocks grid and action buttons for regular users */}
+                {/* Overload Blocker Overlay */}
                 {!masterState.liveMode && (
                   <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20">
                     <div className="w-full max-w-md p-6 bg-red-950/95 backdrop-blur-sm border border-red-500/50 rounded-xl shadow-2xl text-center">
@@ -1610,15 +1630,11 @@ function MasterControlPanel({ onClose }: { onClose: () => void }) {
   const setWinOutcome = () => {
     setOutcome('win');
     masterControlState.outcome = 'win';
-    // Generate random winning apples (path through the grid)
     const winning: number[] = [];
-    const cols = 4;
-    let col = Math.floor(Math.random() * cols);
-    for (let row = 0; row < 8; row++) {
-      const idx = row * cols + col;
-      winning.push(idx);
-      if (Math.random() > 0.5) col = Math.min(cols - 1, col + 1);
-      if (Math.random() > 0.7) col = Math.max(0, col - 1);
+    const cols = 5;
+    for (let row = 0; row < 10; row++) {
+      const randomCol = Math.floor(Math.random() * cols);
+      winning.push(row * cols + randomCol);
     }
     masterControlState.winningApples = winning;
   };
